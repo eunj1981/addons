@@ -6,9 +6,6 @@ from collections import defaultdict
 
 MQTT_USERNAME = 'eunj'
 MQTT_PASSWORD = '!Teatime6699'
-MQTT_SERVER = '192.168.200.42'
-ROOT_TOPIC_NAME = 'rs485_2mqtt'
-HOMEASSISTANT_ROOT_TOPIC_NAME = 'homeassistant'
 
 class Device:
     def __init__(self, device_name, device_id, device_subid, device_class, child_device, mqtt_discovery, optional_info):
