@@ -288,8 +288,8 @@ optional_info = {'modes': ['down']}
 엘리베이터.register_status(message_flag='44', attr_name='floor', topic_class='current_floor_state_topic', regex=r'([0-9a-fA-F]{2})', process_func=lambda v: int(v))
 엘리베이터.register_status(message_flag='01', attr_name='availability', topic_class='availability_topic', regex=r'()', process_func=lambda v: 'online')
 엘리베이터.register_status(message_flag='44', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'ON')
-엘리베이터.register_status(message_flag='51', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'OFF')
 엘리베이터.register_status(message_flag='C4', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'OFF')
+엘리베이터.register_status(message_flag='51', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'OFF')
 엘리베이터.register_command(message_flag='81', attr_name='power', topic_class='command_topic', process_func=lambda v: '24' if v == 'ON' else '00')
 
 wallpad.listen()
