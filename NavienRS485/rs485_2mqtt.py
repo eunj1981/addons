@@ -1,3 +1,4 @@
+###143jin/addons 난방 현재온도,설정온도 불러오기 o 조명 현재상태 불러오기x 
 import paho.mqtt.client as mqtt
 import re
 from json import dumps as json_dumps
