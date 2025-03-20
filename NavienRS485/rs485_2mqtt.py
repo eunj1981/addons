@@ -78,7 +78,7 @@ class Wallpad:
         self.mqtt_client = mqtt.Client()
         self.mqtt_client.on_message    = self.on_raw_message
         self.mqtt_client.on_disconnect = self.on_disconnect
-        self.mqtt_client.username_pw_set(username=eunj, password=!Teatime6699)
+        self.mqtt_client.username_pw_set(username=MQTT_USERNAME, password=MQTT_PASSWORD)
         self.mqtt_client.connect(MQTT_SERVER, 1883)
 
     def listen(self):
