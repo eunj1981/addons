@@ -290,6 +290,6 @@ optional_info = {'modes': ['down']}
 엘리베이터.register_status(message_flag='44', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'ON')
 엘리베이터.register_status(message_flag='C4', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'OFF')
 엘리베이터.register_status(message_flag='51', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'OFF')
-엘리베이터.register_command(message_flag='81', attr_name='power', topic_class='command_topic', process_func=lambda v: '24' if v == 'ON' else 'call') #on을 call로 변경 하고 테스트 해보기
+엘리베이터.register_command(message_flag='81', attr_name='power', topic_class='command_topic', process_func=lambda v: '24' if v == 'ON' else 'call') #ON을 call로 변경 하고 테스트 해보기
 
 wallpad.listen()
