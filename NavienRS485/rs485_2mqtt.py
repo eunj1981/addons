@@ -287,6 +287,6 @@ optional_info = {'optimistic': 'false'}
 엘리베이터 = wallpad.add_device(device_name = '엘리베이터', device_id = '33', device_subid = '01', device_class = 'switch', optional_info = optional_info)
 엘리베이터.register_status(message_flag = '01', attr_name = 'power', topic_class ='state_topic', regex = r'(0[01])', process_func = lambda v: 'OFF')
 엘리베이터.register_status(message_flag = '01', attr_name = 'availability', topic_class ='availability_topic', regex = r'(0[01])', process_func = lambda v: 'online')
-엘리베이터.register_command(message_flag = '81', attr_name = 'power', topic_class = 'command_topic', process_func = lambda v: '10' if v == 'ON' else '10') # 엘리베이터 호출 # F7 33 01 81 03 00 24 00 63 36
+엘리베이터.register_command(message_flag = '81', attr_name = 'call', topic_class = 'command_topic', process_func = lambda v: '24006336' if v == 'ON' else 'call') # 엘리베이터 호출 # F7 33 01 81 03 00 24 00 63 36
 
 wallpad.listen()
