@@ -285,11 +285,11 @@ for message_flag in ['81', 'c3', 'c4', 'c5']:
 optional_info = {'modes': ['down']}
 엘리베이터 = wallpad.add_device(device_name='엘리베이터', device_id='33', device_subid='01', device_class='switch', optional_info=optional_info)
 
-엘리베이터.register_status(message_flag='44', attr_name='floor', topic_class='current_floor_state_topic', regex=r'([0-9a-fA-F]{2})', process_func=lambda v: int(v))
+엘리베이터.register_status(message_flag='44', attr_name='floor', topic_class='current_floor_state_topic', regex=r'([0-9a-fA-F]{2})', process_func=lambda v: int(v))  # 층수 센서 attribute 등록
 엘리베이터.register_status(message_flag='01', attr_name='availability', topic_class='availability_topic', regex=r'()', process_func=lambda v: 'online')
 엘리베이터.register_status(message_flag='44', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'ON')
 엘리베이터.register_status(message_flag='C4', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'OFF')
 엘리베이터.register_status(message_flag='51', attr_name='power', topic_class='state_topic', regex=r'()', process_func=lambda v: 'OFF')
-엘리베이터.register_command(message_flag='81', attr_name='power', topic_class='command_topic', process_func=lambda v: '24' if v == 'ON' else 'call') #ON을 call로 변경 하고 테스트 해보기
+엘리베이터.register_command(message_flag='81', attr_name='power', topic_class='command_topic', process_func=lambda v: '24' if v == 'ON' else 'call') #ON을 call로 변경 하고 테스트 해보�[...]
 
 wallpad.listen()
