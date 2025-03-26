@@ -285,29 +285,53 @@ for message_flag in ['81', 'c3', 'c4', 'c5']:
 optional_info = {'optimistic': 'false'}
 엘리베이터 = wallpad.add_device(device_name='엘리베이터', device_id='33', device_subid='01', device_class='switch', optional_info=optional_info)
 
-# 층수 패킷 수신 및 상태 업데이트
+# 층수 패킷 수신 및 상태 업데이트 (10진수 그대로 사용)
 엘리베이터.register_status(
     message_flag='44',
     attr_name='current_floor',
     topic_class='state_topic',
-    regex=r'f7 33 01 44 (\d{2})',  # 두 자리 10진수 값 추출
-    process_func=lambda v: int(v)  # 문자열을 정수형으로 변환
+    regex=r'f7 33 01 44 01 (\d{2})',  # 두 자리 10진수 값 추출
+    process_func=int  # 문자열을 정수로 변환
 )
 
-# 19층 상태 감지 및 스위치 OFF 처리
+# 19층 도착 시 스위치 OFF 처리
+def handle_elevator_arrival(floor):
+    if floor == 19:
+        엘리베이터.set_state('power', 'OFF')
+    return floor
+
 엘리베이터.register_status(
     message_flag='44',
-    attr_name='power',
+    attr_name='current_floor',
     topic_class='state_topic',
-    regex=r'f7 33 01 44 (\d{2})',
-    process_func=lambda v: 'OFF' if int(v) == 19 else 'ON'  # 층수가 19일 때 OFF
+    regex=r'f7 33 01 44 01 (\d{2})',
+    process_func=lambda v: handle_elevator_arrival(int(v))
 )
 
-# 엘리베이터 호출 명령
+# 엘리베이터 호출 명령 처리
+def call_elevator(v):
+    if v == 'ON':
+        return bytes.fromhex("F7 33 01 81 03 00 24 00 63 36")  # 호출 패킷
+    return None
+
 엘리베이터.register_command(
-    message_flag='43',
+    message_flag='81',
     attr_name='power',
     topic_class='command_topic',
-    process_func=lambda v: '10' if v == 'ON' else '10'
+    process_func=call_elevator
 )
+
+# 도착 패킷 수신 시 OFF 처리
+def elevator_arrived(_):
+    엘리베이터.set_state('power', 'OFF')  # 스위치 OFF
+    return "Arrived"
+
+엘리베이터.register_status(
+    message_flag='57',
+    attr_name='arrival_status',
+    topic_class='state_topic',
+    regex=r'f7 33 01 57 00 92 14',
+    process_func=elevator_arrived
+)
+
 wallpad.listen()
