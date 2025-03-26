@@ -281,49 +281,37 @@ for message_flag in ['81', 'c3', 'c4', 'c5']:
 팬트리난방.register_command(message_flag = '44', attr_name = 'targettemp', topic_class = 'temperature_command_topic', process_func = lambda v: format(int(float(v) // 1 + float(v) % 1 * 128 * 2), '02x'))
 팬트리난방.register_command(message_flag = '45', attr_name = 'away_mode', topic_class = 'away_mode_command_topic', process_func = lambda v: '01' if v =='ON' else '00')
 
-# 엘리베이터 호출 스위치 생성
-optional_info = {'optimistic': 'false'}
-엘리베이터 = wallpad.add_device(device_name='엘리베이터', device_id='33', device_subid='01', device_class='switch', optional_info=optional_info)
-
-# 층수 패킷 수신 및 상태 업데이트 (10진수 그대로 사용)
-엘리베이터.register_status(
-    message_flag='44',
-    attr_name='current_floor',
-    topic_class='state_topic',
-    regex=r'f7 33 01 44 01 (\d{2})',  # 두 자리 10진수 값 추출
-    process_func=int  # 문자열을 정수로 변환
+# 엘리베이터 호출 버튼 생성
+엘리베이터 = wallpad.add_device(
+    device_name='엘리베이터',
+    device_id='33',
+    device_subid='01',
+    device_class='button'  # 스위치 대신 버튼 사용
 )
 
-# 19층 도착 시 스위치 OFF 처리
-def handle_elevator_arrival(floor):
-    if floor == 19:
-        엘리베이터.set_state('power', 'OFF')
-    return floor
-
+# 층수 패킷 수신 및 상태 업데이트
 엘리베이터.register_status(
     message_flag='44',
     attr_name='current_floor',
     topic_class='state_topic',
     regex=r'f7 33 01 44 01 (\d{2})',
-    process_func=lambda v: handle_elevator_arrival(int(v))
+    process_func=int  # 10진수 값 그대로 사용
 )
 
-# 엘리베이터 호출 명령 처리
-def call_elevator(v):
-    if v == 'ON':
-        return bytes.fromhex("F7 33 01 81 03 00 24 00 63 36")  # 호출 패킷
-    return None
+# 엘리베이터 호출 버튼 클릭 시 호출 패킷 전송
+def call_elevator(_):
+    return bytes.fromhex("F7 33 01 81 03 00 24 00 63 36")  # 호출 패킷
 
 엘리베이터.register_command(
     message_flag='81',
-    attr_name='power',
+    attr_name='press',
     topic_class='command_topic',
     process_func=call_elevator
 )
 
-# 도착 패킷 수신 시 OFF 처리
+# 도착 패킷 수신 시 알림 처리
 def elevator_arrived(_):
-    엘리베이터.set_state('power', 'OFF')  # 스위치 OFF
+    엘리베이터.set_state('current_floor', 'Arrived')
     return "Arrived"
 
 엘리베이터.register_status(
@@ -333,5 +321,6 @@ def elevator_arrived(_):
     regex=r'f7 33 01 57 00 92 14',
     process_func=elevator_arrived
 )
+
 
 wallpad.listen()
