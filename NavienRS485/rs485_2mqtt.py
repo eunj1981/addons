@@ -291,11 +291,11 @@ for message_flag in ['81', 'c3', 'c4', 'c5']:
 
 # 층수 패킷 수신 및 상태 업데이트
 엘리베이터.register_status(
-    message_flag='44',
-    attr_name='current_floor',
+    message_flag='44',  # 층수 패킷
+    attr_name='floor',
     topic_class='state_topic',
-    regex=r'f7 33 01 44 01 (\d{2})',
-    process_func=int  # 10진수 값 그대로 사용
+    regex=r'F733014401([0-9A-F]{2})[0-9A-F]{2}[0-9A-F]{2}',  # XX(층수)만 추출
+    process_func=lambda v: -1 if v == 'F1' else (-2 if v == 'F2' else int(v, 10))  # 지하층 변환
 )
 
 # 엘리베이터 호출 버튼 클릭 시 호출 패킷 전송
