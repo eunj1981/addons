@@ -281,17 +281,33 @@ for message_flag in ['81', 'c3', 'c4', 'c5']:
 팬트리난방.register_command(message_flag = '44', attr_name = 'targettemp', topic_class = 'temperature_command_topic', process_func = lambda v: format(int(float(v) // 1 + float(v) % 1 * 128 * 2), '02x'))
 팬트리난방.register_command(message_flag = '45', attr_name = 'away_mode', topic_class = 'away_mode_command_topic', process_func = lambda v: '01' if v =='ON' else '00')
 
-### 엘리베이터 ###
-# 엘리베이터, 일괄 제어 용도의 패킷이지만 엘리베이터 호출 용도로만 사용해도 무방
+# 엘리베이터 호출 스위치 생성
 optional_info = {'optimistic': 'false'}
-엘리베이터 = wallpad.add_device(device_name = '엘리베이터', device_id = '33', device_subid = '01', device_class = 'switch', optional_info = optional_info)
-엘리베이터.register_status(message_flag = '01', attr_name = 'power', topic_class ='state_topic', regex = r'(0[01])', process_func = lambda v: 'OFF')
-엘리베이터.register_status(message_flag = '01', attr_name = 'availability', topic_class ='availability_topic', regex = r'(0[01])', process_func = lambda v: 'online')
+엘리베이터 = wallpad.add_device(device_name='엘리베이터', device_id='33', device_subid='01', device_class='switch', optional_info=optional_info)
 
-# 엘리베이터 호출 패킷 전송
-엘리베이터.register_command(message_flag = '81', attr_name = 'call', topic_class = 'command_topic', process_func = lambda v: 'F7 33 01 81 03 00 24 00 63 36')
+# 층수 패킷 수신 및 상태 업데이트
+엘리베이터.register_status(
+    message_flag='44',
+    attr_name='current_floor',
+    topic_class='state_topic',
+    regex=r'f7 33 01 44 (\d{2})',  # 두 자리 10진수 값 추출
+    process_func=lambda v: int(v)  # 문자열을 정수형으로 변환
+)
 
-# 호출 버튼에 층수를 표시하는 코드 추가
-엘리베이터.register_status(message_flag = '44', attr_name = 'current_floor', topic_class = 'state_topic', regex = r'f7 33 01 44 ([0-9a-fA-F]{2})', process_func = lambda v: int(v, 16))
+# 19층 상태 감지 및 스위치 OFF 처리
+엘리베이터.register_status(
+    message_flag='44',
+    attr_name='power',
+    topic_class='state_topic',
+    regex=r'f7 33 01 44 (\d{2})',
+    process_func=lambda v: 'OFF' if int(v) == 19 else 'ON'  # 층수가 19일 때 OFF
+)
 
+# 엘리베이터 호출 명령
+엘리베이터.register_command(
+    message_flag='43',
+    attr_name='power',
+    topic_class='command_topic',
+    process_func=lambda v: '10' if v == 'ON' else '10'
+)
 wallpad.listen()
