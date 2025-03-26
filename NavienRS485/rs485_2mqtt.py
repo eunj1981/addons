@@ -318,7 +318,7 @@ def elevator_arrived(_):
     message_flag='57',
     attr_name='arrival_status',
     topic_class='state_topic',
-    regex=r'f7 33 01 57 00 92 14',
+    regex=r'F7 33 01 57 00 92 14',
     process_func=elevator_arrived
 )
 
