@@ -282,6 +282,7 @@ for message_flag in ['81', 'c3', 'c4', 'c5']:
 팬트리난방.register_command(message_flag = '45', attr_name = 'away_mode', topic_class = 'away_mode_command_topic', process_func = lambda v: '01' if v =='ON' else '00')
 
 # 엘리베이터 호출 버튼 생성
+for message_flag in ['33', '44', '81', '57']:
 엘리베이터 = wallpad.add_device(device_name='엘리베이터', device_id='33', device_subid='01', device_class='button') #스위치 대신 버튼 사용
 
 # 층수 패킷 수신 및 상태 업데이트
