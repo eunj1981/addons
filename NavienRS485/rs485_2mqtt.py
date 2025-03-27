@@ -286,7 +286,7 @@ for message_flag in ['33', '44', '81', '57']:
 엘리베이터 = wallpad.add_device(device_name='엘리베이터', device_id='33', device_subid='01', device_class='button') #스위치 대신 버튼 사용
 
 # 층수 패킷 수신 및 상태 업데이트
-엘리베이터.register_status(message_flag = '44', attr_name='floor', topic_class='state_topic', regex=r'F733014401([0-9A-F]{2})[0-9A-F]{2}[0-9A-F]{2}', process_func=lambda v: -1 if v == 'F1' else (-2 if v == 'F2' else int(v, 10)))
+엘리베이터.register_status(message_flag = '44', attr_name='floor', topic_class='state_topic', regex=r'44[0-9A-F]{2}([0-9A-F]{2})[0-9A-F]{2}[0-9A-F]{2}', process_func=lambda v: -1 if v == 'F1' else (-2 if v == 'F2' else int(v, 10)))
 
 # 엘리베이터 호출 버튼 클릭 시 호출 패킷 전송
 def call_elevator(_):
