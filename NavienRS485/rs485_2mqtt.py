@@ -282,45 +282,22 @@ for message_flag in ['81', 'c3', 'c4', 'c5']:
 팬트리난방.register_command(message_flag = '45', attr_name = 'away_mode', topic_class = 'away_mode_command_topic', process_func = lambda v: '01' if v =='ON' else '00')
 
 # 엘리베이터 호출 버튼 생성
-엘리베이터 = wallpad.add_device(
-    device_name='엘리베이터',
-    device_id='33',
-    device_subid='01',
-    device_class='button'  # 스위치 대신 버튼 사용
-)
+엘리베이터 = wallpad.add_device(device_name='엘리베이터', device_id='33', device_subid='01', device_class='button') #스위치 대신 버튼 사용
 
 # 층수 패킷 수신 및 상태 업데이트
-엘리베이터.register_status(
-    message_flag='44',  # 층수 패킷
-    attr_name='floor',
-    topic_class='state_topic',
-    regex=r'F733014401([0-9A-F]{2})[0-9A-F]{2}[0-9A-F]{2}',  # XX(층수)만 추출
-    process_func=lambda v: -1 if v == 'F1' else (-2 if v == 'F2' else int(v, 10))  # 지하층 변환
-)
+엘리베이터.register_status(message_flag = '44', attr_name='floor', topic_class='state_topic', regex=r'F733014401([0-9A-F]{2})[0-9A-F]{2}[0-9A-F]{2}', process_func=lambda v: -1 if v == 'F1' else (-2 if v == 'F2' else int(v, 10)))
 
 # 엘리베이터 호출 버튼 클릭 시 호출 패킷 전송
 def call_elevator(_):
     return bytes.fromhex("F7 33 01 81 03 00 24 00 63 36")  # 호출 패킷
 
-엘리베이터.register_command(
-    message_flag='81',
-    attr_name='press',
-    topic_class='command_topic',
-    process_func=call_elevator
-)
+엘리베이터.register_command(message_flag='81', attr_name='press', topic_class='command_topic', process_func=call_elevator)
 
 # 도착 패킷 수신 시 알림 처리
 def elevator_arrived(_):
     엘리베이터.set_state('current_floor', 'Arrived')
     return "Arrived"
 
-엘리베이터.register_status(
-    message_flag='57',
-    attr_name='arrival_status',
-    topic_class='state_topic',
-    regex=r'F7 33 01 57 00 92 14',
-    process_func=elevator_arrived
-)
-
+엘리베이터.register_status(message_flag='57', attr_name='arrival_status', topic_class='state_topic', regex=r'F7 33 01 57 00 92 14', process_func=elevator_arrived)
 
 wallpad.listen()
