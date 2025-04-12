@@ -6,7 +6,7 @@ from collections import defaultdict
 
 MQTT_USERNAME = 'eunj'
 MQTT_PASSWORD = '!Teatime6699'
-MQTT_SERVER = '192.168.200.42'
+MQTT_SERVER = '192.168.200.68'
 ROOT_TOPIC_NAME = 'rs485_2mqtt'
 HOMEASSISTANT_ROOT_TOPIC_NAME = 'homeassistant'
 
@@ -151,7 +151,7 @@ class Wallpad:
     def on_disconnect(self, client, userdata, rc):
         raise ConnectionError
 
-MQTT_SERVER = '192.168.200.42'
+MQTT_SERVER = '192.168.200.68'
 ROOT_TOPIC_NAME = 'rs485_2mqtt'
 HOMEASSISTANT_ROOT_TOPIC_NAME = 'homeassistant'
 wallpad = Wallpad()
