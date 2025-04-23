@@ -284,5 +284,50 @@ for message_flag in ['81', 'c3', 'c4', 'c5']:
 팬트리난방.register_command(message_flag = '44', attr_name = 'targettemp', topic_class = 'temperature_command_topic', process_func = lambda v: format(int(float(v) // 1 + float(v) % 1 * 128 * 2), '02x'))
 팬트리난방.register_command(message_flag = '45', attr_name = 'away_mode', topic_class = 'away_mode_command_topic', process_func = lambda v: '01' if v =='ON' else '00')
 
+### 엘리베이터 호출 ###
+optional_info_button = {'optimistic': 'false'}
+엘리베이터 = wallpad.add_device(device_name='엘리베이터 호출', device_id='33', device_subid='01', device_class='button', optional_info=optional_info_button)
+
+# 엘리베이터 호출 버튼 명령 등록
+엘리베이터.register_command(message_flag='81', attr_name='call', topic_class='command_topic', process_func=lambda v: '03' if v == 'ON' else '00')
+
+# 엘리베이터 상태 센서 ###
+optional_info_sensor = {'device_class': 'sensor'}
+엘리베이터_상태 = wallpad.add_device(device_name='엘리베이터 상태', device_id='33', device_subid='01', device_class='sensor', optional_info=optional_info_sensor)
+
+# 엘리베이터의 현재 층 상태 등록
+엘리베이터_상태.register_status(
+    message_flag='44',
+    attr_name='floor',
+    topic_class='state_topic',
+    regex=r'f733014401([\da-fA-F]{2})',
+    process_func=lambda v: str(int(v, 16))  # 16진수를 10진수로 변환하여 층수로 표시
+)
+
+# 엘리베이터 상태를 처리하는 함수 추가
+def handle_elevator_status(client, userdata, msg):
+    # 수신된 패킷 처리
+    payload_hexstring = msg.payload.hex()
+    if payload_hexstring.startswith('f733014401'):
+        floor_hex = payload_hexstring[10:12]  # 층수에 해당하는 16진수 값 추출
+        floor = int(floor_hex, 16)  # 10진수로 변환
+        topic = '/'.join([ROOT_TOPIC_NAME, 'sensor', '엘리베이터 상태', 'floor'])
+        client.publish(topic, str(floor), qos=1, retain=False)
+
+        # 엘리베이터가 19층에 도달하면 스위치 OFF
+        if floor == 19:
+            off_payload = bytearray.fromhex('f7 33 01 81 00')  # OFF 명령 패킷
+            client.publish(ROOT_TOPIC_NAME + '/dev/command', off_payload, qos=2, retain=False)
+
+# 엘리베이터 호출 버튼 명령 처리
+def handle_elevator_command(client, userdata, msg):
+    if msg.topic.endswith('/call/set'):
+        # 호출 버튼 ON 명령 시 패킷 전송
+        call_payload = bytearray.fromhex('f7 33 01 81 03 00 24 00 63 36')
+        client.publish(ROOT_TOPIC_NAME + '/dev/command', call_payload, qos=2, retain=False)
+
+# MQTT 메시지 핸들러 등록
+wallpad.mqtt_client.message_callback_add(ROOT_TOPIC_NAME + '/dev/raw', handle_elevator_status)
+wallpad.mqtt_client.message_callback_add(ROOT_TOPIC_NAME + '/sensor/엘리베이터 호출/call/set', handle_elevator_command)
 
 wallpad.listen()
